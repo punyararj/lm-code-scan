@@ -92,69 +92,31 @@ public class RNLmCodeScanModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void scan(final JSONArray args) {
+    public void scan(final ReadableMap args) {
         Activity currentActivity = getCurrentActivity();
         Intent intentScan = new Intent(reactContext, CaptureActivity.class);
         intentScan.setAction(Intents.Scan.ACTION);
         intentScan.addCategory(Intent.CATEGORY_DEFAULT);
 
-        // add config as intent extras
-        if (args.length() > 0) {
-
-            JSONObject obj;
-            JSONArray names;
-            String key;
-            Object value;
-
-            for (int i = 0; i < args.length(); i++) {
-
-                try {
-                    obj = args.getJSONObject(i);
-                } catch (JSONException e) {
-                    //Log.i("ReactLog", e.getLocalizedMessage());
-                    continue;
-                }
-
-                names = obj.names();
-                for (int j = 0; j < names.length(); j++) {
-                    try {
-                        key = names.getString(j);
-                        value = obj.get(key);
-
-                        if (value instanceof Integer) {
-                            intentScan.putExtra(key, (Integer) value);
-                        } else if (value instanceof String) {
-                            intentScan.putExtra(key, (String) value);
-                        }
-
-                    } catch (JSONException e) {
-                        //Log.i("CordovaLog", e.getLocalizedMessage());
-                    }
-                }
-
-                intentScan.putExtra(Intents.Scan.CAMERA_ID, obj.optBoolean(PREFER_FRONTCAMERA, false) ? 1 : 0);
-                intentScan.putExtra(Intents.Scan.SHOW_FLIP_CAMERA_BUTTON, obj.optBoolean(SHOW_FLIP_CAMERA_BUTTON, false));
-                intentScan.putExtra(Intents.Scan.SHOW_TORCH_BUTTON, obj.optBoolean(SHOW_TORCH_BUTTON, false));
-                intentScan.putExtra(Intents.Scan.TORCH_ON, obj.optBoolean(TORCH_ON, false));
-                intentScan.putExtra(Intents.Scan.SAVE_HISTORY, obj.optBoolean(SAVE_HISTORY, false));
-                boolean beep = obj.optBoolean(DISABLE_BEEP, false);
-                intentScan.putExtra(Intents.Scan.BEEP_ON_SCAN, !beep);
-                if (obj.has(RESULTDISPLAY_DURATION)) {
-                    intentScan.putExtra(Intents.Scan.RESULT_DISPLAY_DURATION_MS, "" + obj.optLong(RESULTDISPLAY_DURATION));
-                }
-                if (obj.has(FORMATS)) {
-                    intentScan.putExtra(Intents.Scan.FORMATS, obj.optString(FORMATS));
-                }
-                if (obj.has(PROMPT)) {
-                    intentScan.putExtra(Intents.Scan.PROMPT_MESSAGE, obj.optString(PROMPT));
-                }
-                if (obj.has(ORIENTATION)) {
-                    intentScan.putExtra(Intents.Scan.ORIENTATION_LOCK, obj.optString(ORIENTATION));
-                }
-            }
-
+        intentScan.putExtra(Intents.Scan.CAMERA_ID, args.hasKey(PREFER_FRONTCAMERA) && args.getBoolean(PREFER_FRONTCAMERA) ? 1 : 0); // If front cam, cam id = 1
+        intentScan.putExtra(Intents.Scan.SHOW_FLIP_CAMERA_BUTTON, args.hasKey(SHOW_FLIP_CAMERA_BUTTON) && args.getBoolean(SHOW_FLIP_CAMERA_BUTTON));
+        intentScan.putExtra(Intents.Scan.SHOW_TORCH_BUTTON, args.hasKey(SHOW_TORCH_BUTTON) && args.getBoolean(SHOW_TORCH_BUTTON));
+        intentScan.putExtra(Intents.Scan.TORCH_ON, args.hasKey(TORCH_ON) && args.getBoolean(TORCH_ON));
+        intentScan.putExtra(Intents.Scan.SAVE_HISTORY,args.hasKey(SAVE_HISTORY) && args.getBoolean(SAVE_HISTORY));
+        boolean beep = args.hasKey(DISABLE_BEEP) && args.getBoolean(DISABLE_BEEP);
+        intentScan.putExtra(Intents.Scan.BEEP_ON_SCAN, !beep);
+        if (args.hasKey(RESULTDISPLAY_DURATION)) {
+            intentScan.putExtra(Intents.Scan.RESULT_DISPLAY_DURATION_MS, "" + args.getInt(RESULTDISPLAY_DURATION));
         }
-
+        if (args.hasKey(FORMATS)) {
+            intentScan.putExtra(Intents.Scan.FORMATS, args.getString(FORMATS));
+        }
+        if (args.hasKey(PROMPT)) {
+            intentScan.putExtra(Intents.Scan.PROMPT_MESSAGE, args.getString(PROMPT));
+        }
+        if (args.hasKey(ORIENTATION)) {
+            intentScan.putExtra(Intents.Scan.ORIENTATION_LOCK, args.getString(ORIENTATION));
+        }
         // avoid calling other phonegap apps
         intentScan.setPackage(reactContext.getPackageName());
         currentActivity.startActivityForResult(intentScan, REQUEST_CODE);
