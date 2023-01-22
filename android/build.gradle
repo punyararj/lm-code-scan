@@ -43,8 +43,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.facebook.react:react-android:0.71.1'
-    //implementation 'com.facebook.react:react-native:+'
+    //implementation 'com.facebook.react:react-android:0.71.1'
+    implementation 'com.facebook.react:react-native:+'
     //implementation 'barcodescanner-release-2.1.5@arr'
     implementation fileTree(dir: "libs", include: ["*.aar"])
     //implementation files('bar')
